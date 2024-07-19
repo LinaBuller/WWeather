@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">WWeather</string>
+    <string name="temp">Temp</string>
+    <string name="feelslike">Feels like:</string>
+    <string name="manage_city">Manage city</string>
+    <string name="home_tap_to_load_content">Tap to load content</string>
+    <string name="cd_open_navigation_drawer">Open navigation drawer</string>
+    <string name="cd_navigate_up">Navigate up</string>
+    <string name="update">Update weather</string>
+</resources>
