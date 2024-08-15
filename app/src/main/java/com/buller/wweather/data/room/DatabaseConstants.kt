@@ -8,4 +8,6 @@ object DatabaseConstants {
     const val CITY_NAME = "city_name"
     const val CITY_IS_PIN = "is_pin"
     const val CITY_POSITION = "position"
+    const val CITY_COUNTRY = "country"
+    const val CITY_REGION = "region"
 }

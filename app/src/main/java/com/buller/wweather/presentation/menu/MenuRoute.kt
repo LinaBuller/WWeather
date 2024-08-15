@@ -1,7 +1,6 @@
 package com.buller.wweather.presentation.menu
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.buller.wweather.presentation.home.HomeViewModel
@@ -11,13 +10,14 @@ import com.buller.wweather.presentation.home.HomeViewModel
 fun MenuRoute(
     viewModel: HomeViewModel,
     isExpandedScreen: Boolean,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToCities: () -> Unit,
 ) {
     val state = viewModel.citiesUiState.collectAsStateWithLifecycle().value
+    val prefUiState = viewModel.prefUiState.collectAsStateWithLifecycle().value
 
     MenuScreen(
         uiState = state,
@@ -31,6 +31,7 @@ fun MenuRoute(
         onRefreshCities = {
             viewModel.refreshCities()
         },
-        onNavigateToCities = onNavigateToCities
+        onNavigateToCities = onNavigateToCities,
+        prefUiState = prefUiState
     )
 }

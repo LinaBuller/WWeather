@@ -1,3 +1,5 @@
+
+
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     id("com.android.application")
@@ -70,7 +72,8 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
-    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.hilt.common)
+    implementation(libs.firebase.components)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -83,9 +86,11 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     //Dagger-Hilt
 
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation ("com.google.dagger:hilt-android:2.51.1")
+    kapt ("com.google.dagger:hilt-compiler:2.51.1")
+    implementation ("androidx.hilt:hilt-work:1.0.0")
+    implementation ("androidx.work:work-runtime-ktx:2.9.1")
+    implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     //Location Services
     implementation(libs.play.services.location)
@@ -97,6 +102,7 @@ dependencies {
     kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
     implementation(libs.converter.moshi)
     implementation(libs.androidx.fragment.ktx)
+
 
     //Charts
     implementation(libs.ycharts)
@@ -120,4 +126,5 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation (libs.glide.compose)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.eventbus)
 }

@@ -37,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.TopAppBarState
@@ -52,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -75,16 +77,22 @@ fun HomeScreen(
     openMenu: () -> Unit,
 ) {
     WeatherFeed(uiState,
-        modifier = modifier,
+        modifier = Modifier,
         openMenu = openMenu,
         onRefreshWeather = onRefreshWeather,
         hasWeatherInfo = { hasInfoUiState, contentPadding, contentModifier ->
+
+            val cities = hasInfoUiState.pagerList.map { it.city }
+            val pagerState = rememberPagerState(pageCount = { cities.size }, initialPage = 0)
+
             Pager(
-                hasInfoUiState,
+                pagerState = pagerState,
                 contentPadding = contentPadding,
                 modifier = contentModifier,
                 onRefreshWeather = onRefreshWeather,
-                prefUiState = prefUiState
+                prefUiState = prefUiState,
+                pagerList = hasInfoUiState.pagerList,
+                cities = cities
             )
         })
 }
@@ -101,15 +109,17 @@ fun WeatherFeed(
     ) -> Unit
 ) {
     val topAppBarState = rememberTopAppBarState()
-
     Scaffold(
         topBar = {
             HomeTopAppBar(
                 openMenu = openMenu,
                 topAppBarState = topAppBarState,
                 onRefreshWeather = onRefreshWeather,
+                modifier = modifier
             )
-        }, modifier = modifier
+        },
+        modifier = modifier,
+        containerColor = Color.Transparent,
     ) { innerPadding ->
         LoadingContent(empty = when (uiState) {
             is PageState.HasInfo -> false
@@ -118,6 +128,7 @@ fun WeatherFeed(
             emptyContent = { FullScreenLoading() },
             loading = uiState.isLoading,
             onRefreshWeather = onRefreshWeather,
+            modifier = modifier,
             content = {
                 when (uiState) {
                     is PageState.HasInfo -> {
@@ -127,9 +138,7 @@ fun WeatherFeed(
                     is PageState.NoInfo -> {
                         TextButton(
                             onClick = onRefreshWeather,
-                            modifier = modifier
-                                .padding(innerPadding)
-                                .fillMaxSize()
+                            modifier = modifier.padding(innerPadding)
                         ) {
                             Text(
                                 text = stringResource(R.string.home_tap_to_load_content),
@@ -144,21 +153,14 @@ fun WeatherFeed(
 
 @Composable
 fun Pager(
-    uiState: PageState.HasInfo,
+    pagerState: PagerState,
+    pagerList: List<ExamplePage>,
+    cities: List<City>,
     prefUiState: PreferencesState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    onRefreshWeather: () -> Unit
+    onRefreshWeather: () -> Unit,
 ) {
-
-    val pagerList = uiState.pagerList
-    val cities = mutableListOf<City>()
-
-    pagerList.forEach {
-        cities.add(it.city)
-    }
-
-    val pagerState = rememberPagerState(pageCount = { cities.size }, initialPage = 0)
     var selectedTab by remember { mutableIntStateOf(pagerState.currentPage) }
     val coroutineScope = rememberCoroutineScope()
 
@@ -174,7 +176,6 @@ fun Pager(
         modifier = modifier.padding(contentPadding)
     ) {
         CustomIndicatorRowPager(pagerState = pagerState, pageCount = cities.size)
-
         CustomTabRowWithPartialVisibility(
             pagerState = pagerState, onTabSelected = { index ->
                 selectedTab = index
@@ -187,7 +188,7 @@ fun Pager(
             state = pagerState, modifier = Modifier.weight(1f)
         ) { currentPage ->
             WeatherList(
-                uiState.pagerList[currentPage],
+                pagerList[currentPage],
                 prefUiState = prefUiState,
                 modifier = modifier,
                 onRefreshWeather = onRefreshWeather
@@ -219,19 +220,37 @@ fun WeatherList(
                         .padding(contentPadding)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    WeatherCard(weatherInfo = page.weatherInfo, prefUiState = prefUiState)
+                    WeatherCard(
+                        weatherInfo = page.weatherInfo,
+                        prefUiState = prefUiState,
+                    )
                     Spacer(modifier = modifier.padding(8.dp))
-                    WeatherInfoList(weatherInfo = page.weatherInfo, prefUiState = prefUiState)
+                    WeatherInfoList(
+                        weatherInfo = page.weatherInfo,
+                        prefUiState = prefUiState,
+                        modifier = modifier.fillMaxWidth()
+                    )
                     Spacer(modifier = modifier.padding(8.dp))
-                    Chart(weatherInfo = page.weatherInfo, prefUiState = prefUiState)
+                    Chart(
+                        weatherInfo = page.weatherInfo,
+                        prefUiState = prefUiState,
+                        modifier = modifier.fillMaxWidth()
+                    )
                     Spacer(modifier = modifier.padding(32.dp))
-                    ForecastList(weatherInfo = page.weatherInfo, prefUiState = prefUiState)
+                    ForecastList(
+                        weatherInfo = page.weatherInfo,
+                        prefUiState = prefUiState,
+                        modifier = modifier.fillMaxWidth()
+                    )
                     Spacer(modifier = modifier.padding(8.dp))
-                    AstronomyCard(weatherInfo = page.weatherInfo)
+                    AstronomyCard(
+                        weatherInfo = page.weatherInfo,
+                        modifier = modifier.fillMaxWidth()
+                    )
                 }
             } else {
                 TextButton(
-                    onClick = onRefreshWeather, modifier = modifier.fillMaxSize()
+                    onClick = { onRefreshWeather.invoke() }, modifier = modifier.fillMaxSize()
                 ) {
                     Text(
                         text = stringResource(R.string.home_tap_to_load_content),
@@ -245,19 +264,21 @@ fun WeatherList(
 
 @Composable
 fun CustomTabRowWithPartialVisibility(
-    pagerState: PagerState, onTabSelected: (Int) -> Unit, tabs: List<City>
+    pagerState: PagerState,
+    onTabSelected: (Int) -> Unit,
+    tabs: List<City>,
+    modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
 
     HorizontalPager(
         state = pagerState,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(end = 100.dp)
     ) { page ->
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = modifier
                 .clickable {
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(page)
@@ -273,7 +294,7 @@ fun CustomTabRowWithPartialVisibility(
         ) {
             Text(
                 text = tabs[page].name,
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp),
                 textAlign = TextAlign.Start,
@@ -337,12 +358,17 @@ fun LoadingContent(
     emptyContent: @Composable () -> Unit,
     loading: Boolean,
     onRefreshWeather: () -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     if (empty) {
         emptyContent()
     } else {
-        PullToRefreshBox(isRefreshing = loading, onRefresh = { onRefreshWeather.invoke() }) {
+        PullToRefreshBox(
+            isRefreshing = loading,
+            onRefresh = { onRefreshWeather.invoke() },
+            modifier = modifier
+        ) {
             content()
         }
     }
@@ -370,13 +396,24 @@ fun HomeTopAppBar(
     ),
     onRefreshWeather: () -> Unit,
 ) {
-    TopAppBar(title = {}, actions = {
-        AppBarRow(
-            openMenu = openMenu,
-            modifier = modifier,
-            onRefreshWeather = onRefreshWeather
+    TopAppBar(
+        title = {},
+        actions = {
+            AppBarRow(
+                openMenu = openMenu,
+                modifier = modifier,
+                onRefreshWeather = onRefreshWeather
+            )
+        },
+        scrollBehavior = scrollBehavior,
+        modifier = modifier,
+        colors = TopAppBarColors(
+            containerColor = Color.Transparent,
+            titleContentColor = Color.Transparent,
+            scrolledContainerColor = Color.Transparent,
+            navigationIconContentColor = MaterialTheme.colorScheme.primary,
+            actionIconContentColor = MaterialTheme.colorScheme.primary
         )
-    }, scrollBehavior = scrollBehavior, modifier = modifier
     )
 }
 
@@ -389,7 +426,6 @@ fun AppBarRow(
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
     ) {
 
         IconButton(onClick = { onRefreshWeather.invoke() }) {

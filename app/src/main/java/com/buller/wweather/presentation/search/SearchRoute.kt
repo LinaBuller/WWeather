@@ -3,7 +3,6 @@ package com.buller.wweather.presentation.search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 
@@ -12,24 +11,24 @@ fun SearchRoute(
     viewModel: SearchViewModel,
     isExpandedScreen: Boolean,
     onBack: () -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    viewModel.refreshExistCities(context)
-
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
+    val searchUi by viewModel.searchUiState.collectAsStateWithLifecycle()
     SearchScreen(
-        existCity = uiState,
+
+        locationState = searchUi,
         isExpandedScreen = isExpandedScreen,
         onBack = onBack,
-        onSaveCity = { cityName ->
-            viewModel.setCityToLocalDatabase(cityName)
+        onSaveCity = { city ->
+            viewModel.setCityToLocalDatabase(city)
             onBack.invoke()
         },
-        onRefreshExistCities = {
-            viewModel.refreshExistCities(context)
+        onRefreshSearchRequest = {
+            viewModel.refreshSearchRequest()
         },
-        modifier = modifier
+        onSearchTextChanged = { text ->
+            viewModel.emitSearchText(text)
+        },
+        modifier = modifier,
     )
 }

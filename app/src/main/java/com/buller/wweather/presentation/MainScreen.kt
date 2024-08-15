@@ -6,18 +6,16 @@ import androidx.compose.ui.Modifier
 import com.buller.wweather.presentation.home.HomeViewModel
 
 
-
 @Composable
 fun MainScreen(
-    modifier: Modifier = Modifier,
     widthSizeClass: WindowWidthSizeClass,
-    viewModel: HomeViewModel
+    modifier: Modifier = Modifier
 ) {
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
 
     NavGraph(
         isExpandedScreen = isExpandedScreen,
-        viewModel = viewModel
+        modifier = modifier
     )
 }
 

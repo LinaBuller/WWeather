@@ -11,15 +11,14 @@ fun CitiesRoute(
     viewModel: CitiesViewModel,
     isExpandedScreen: Boolean,
     onBack: () -> Unit,
-    onSelectCity: (City) -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     CitiesScreen(
         cities = uiState,
         isExpandedScreen = isExpandedScreen,
         onBack = onBack,
-        onSelectCity = onSelectCity,
+        onDeleteCities = { viewModel.deleteCities(it) },
         onRefreshCities = {
             viewModel.refreshCities()
         },

@@ -1,8 +1,10 @@
 package com.buller.wweather.data.mappers
 
 import android.util.Log
+import com.buller.wweather.data.remote.LocationInfoDto
 import com.buller.wweather.data.remote.WeatherDto
 import com.buller.wweather.domain.model.AstronomyInfo
+import com.buller.wweather.domain.model.LocationInfo
 import com.buller.wweather.domain.model.WeatherData
 import com.buller.wweather.domain.model.WeatherInfo
 import com.buller.wweather.domain.model.WeatherType
@@ -35,7 +37,7 @@ fun WeatherDto.toWeatherDataMap(): Map<Int, List<WeatherData>> {
                 time = time,
                 humidity = humidity,
                 weatherType = weatherType,
-                location = location,
+                cityName = location,
                 uv = uv,
                 temperatureC = temperatureC.toInt(),
                 windKph = windKph,
@@ -93,7 +95,7 @@ fun WeatherDto.toCurrentWeatherDate(): WeatherData {
         timestamp = timestamp,
         timeZoneId = timeZoneId,
         weatherType = weatherType,
-        location = location,
+        cityName = location,
         isDay = isDay,
         humidity = humidity,
         uv = uv,
@@ -116,7 +118,7 @@ fun WeatherDto.toCurrentWeatherDate(): WeatherData {
 
         temperatureF = temperatureF.toInt(),
         windMph = windMph,
-        maxTempF = minTempF.toInt(),
+        maxTempF = maxTempF.toInt(),
         minTempF = minTempF.toInt(),
         feelslikeF = feelslikeF,
         pressureIn = pressureIn,
@@ -131,7 +133,9 @@ fun WeatherDto.toWeatherDataPerDay(): List<WeatherData> {
         val day = it.day
         val time = it.date
         val weatherType = WeatherType.fromWNO(day.condition.code)
-        val location = location.name
+        val cityName = location.name
+        val region = location.region
+        val country = location.country
         val uv = day.uv
         val humidity = day.avgHumidity
 
@@ -147,10 +151,11 @@ fun WeatherDto.toWeatherDataPerDay(): List<WeatherData> {
         val data = WeatherData(
             time = time,
             weatherType = weatherType,
-            location = location,
+            cityName = cityName,
+            region = region,
+            country = country,
             uv = uv,
             humidity = humidity,
-
             temperatureC = 0,
             windKph = maxWindKph,
             maxTempC = maxTempC.toInt(),
@@ -173,5 +178,14 @@ fun WeatherDto.toWeatherInfo(): WeatherInfo {
         weatherDatePerHour = weatherDataMap,
         currentWeatherData = currentWeatherData,
         weatherDatePerDay = weatherDataPerDay
+    )
+}
+
+fun LocationInfoDto.toLocationInfo(): LocationInfo {
+    return LocationInfo(
+        id = this.id,
+        name = this.name,
+        region = this.region,
+        country = this.country
     )
 }

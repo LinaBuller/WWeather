@@ -1,11 +1,9 @@
 package com.buller.wweather.presentation.settings
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -24,12 +22,9 @@ import androidx.compose.material3.TopAppBarState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.buller.wweather.R
 import com.buller.wweather.domain.model.PreferenceDesc
 import com.buller.wweather.domain.model.PreferencesState
 
@@ -37,7 +32,7 @@ import com.buller.wweather.domain.model.PreferencesState
 @Composable
 fun SettingsScreen(
     onNavigateUp: () -> Unit,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     state: PreferencesState,
     onTempCheckedChange: (Boolean) -> Unit,
     onWindCheckedChange: (Boolean) -> Unit,
@@ -71,12 +66,12 @@ fun SettingsFeed(
     onPressureCheckedChange: (Boolean) -> Unit,
     onThemeCheckedChange: (Boolean) -> Unit,
     onAutoUpdateCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     Scaffold(topBar = { SettingsTopAppBar(onNavigateUp = onNavigateUp) })
     { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(paddingValues)
         ) {
@@ -87,7 +82,7 @@ fun SettingsFeed(
                 }
             }
 
-            Spacer(modifier = modifier.padding(16.dp))
+            Spacer(modifier = modifier.fillMaxWidth().padding(16.dp))
 
             val temperature = PreferenceDesc.TemperatureItem
             CustomSwitchPreference(
@@ -204,10 +199,4 @@ fun SettingsTopAppBar(
         scrollBehavior = scrollBehavior,
         modifier = modifier
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SettingsScreenPreview() = Surface {
-
 }

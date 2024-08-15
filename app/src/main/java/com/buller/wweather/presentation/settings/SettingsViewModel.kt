@@ -35,9 +35,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateThemeType(type: Boolean) {
+    fun updateTempType(type: Boolean) {
         viewModelScope.launch {
-            userPreferencesRepository.updateThemeType(type)
+            userPreferencesRepository.updateTempType(type)
         }
     }
 

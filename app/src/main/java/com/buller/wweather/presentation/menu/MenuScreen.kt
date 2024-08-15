@@ -11,19 +11,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -33,21 +37,28 @@ import androidx.compose.material3.TopAppBarState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.buller.wweather.R
 import com.buller.wweather.domain.model.City
+import com.buller.wweather.domain.model.PreferencesState
+import com.buller.wweather.domain.model.WeatherType
 import com.buller.wweather.presentation.cities.CitiesUiState
 import com.buller.wweather.presentation.home.FullScreenLoading
-
 
 @Composable
 fun MenuScreen(
     uiState: CitiesUiState,
+    prefUiState: PreferencesState,
     modifier: Modifier = Modifier,
     onItemClick: (City) -> Unit,
     onRefreshCities: () -> Unit,
@@ -71,7 +82,8 @@ fun MenuScreen(
                 contentPadding = contentPadding,
                 modifier = contentModifier,
                 onItemClick = onItemClick,
-                navigateToCities = onNavigateToCities
+                navigateToCities = onNavigateToCities,
+                prefUiState = prefUiState
             )
         })
 }
@@ -79,6 +91,7 @@ fun MenuScreen(
 @Composable
 fun MenuContent(
     uiState: CitiesUiState.HasCities,
+    prefUiState: PreferencesState,
     onItemClick: (City) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -86,21 +99,16 @@ fun MenuContent(
 ) {
     val cities = uiState.cities
 
-    Column(modifier = modifier.padding(contentPadding)) {
+    Column(modifier = modifier
+        .padding(contentPadding)
+        .fillMaxSize()) {
         CityList(
             cities = cities,
             onItemClick = onItemClick,
+            prefUiState = prefUiState,
+            navigateToCities = navigateToCities,
+            modifier = modifier
         )
-        Spacer(modifier = modifier.height(12.dp))
-        Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Button(
-                onClick = {
-                    navigateToCities.invoke()
-                }, modifier = modifier, enabled = true
-            ) {
-                Text(text = stringResource(R.string.manage_city))
-            }
-        }
     }
 }
 
@@ -118,7 +126,6 @@ fun MenuFeed(
     ) -> Unit
 ) {
     val topAppBarState = rememberTopAppBarState()
-
     Scaffold(topBar = {
         MenuTopAppBar(
             modifier = modifier,
@@ -128,12 +135,15 @@ fun MenuFeed(
             onBack = onBack
         )
     }, modifier = modifier) { innerPadding ->
+
         LoadingContent(
             empty = when (uiState) {
                 is CitiesUiState.HasCities -> false
                 is CitiesUiState.NoCities -> uiState.isLoading
             }, emptyContent = { FullScreenLoading() },
-            loading = uiState.isLoading, onRefreshCities = onRefreshCities, content = {
+            loading = uiState.isLoading,
+            onRefreshCities = onRefreshCities,
+            content = {
                 when (uiState) {
                     is CitiesUiState.HasCities -> {
                         hasCities(uiState, innerPadding, modifier)
@@ -142,9 +152,7 @@ fun MenuFeed(
                     is CitiesUiState.NoCities -> {
                         TextButton(
                             onClick = onRefreshCities,
-                            modifier = modifier
-                                .padding(innerPadding)
-                                .fillMaxSize()
+                            modifier = modifier.padding(innerPadding)
                         ) {
                             Text(
                                 text = stringResource(R.string.home_tap_to_load_content),
@@ -155,46 +163,119 @@ fun MenuFeed(
                 }
             }
         )
+
     }
 }
 
 @Composable
 fun CityList(
     cities: List<City>,
+    prefUiState: PreferencesState,
     modifier: Modifier = Modifier,
     onItemClick: (City) -> Unit,
+    navigateToCities: () -> Unit
 ) {
     LazyColumn {
         items(cities) { city ->
-            CityItem(city = city, modifier = modifier.clickable {
-                onItemClick.invoke(city)
-            })
+
+            CityItem(
+                city = city,
+                modifier = modifier.clickable {
+                    onItemClick.invoke(city)
+                },
+                prefUiState = prefUiState
+            )
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.primary,
+                thickness = 1.dp,
+                modifier = modifier.padding(start = 16.dp, end = 16.dp)
+            )
+        }
+        item {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)) {
+                Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Button(
+                        onClick = {
+                            navigateToCities.invoke()
+                        },
+                        modifier = modifier,
+                        enabled = true,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.manage_city),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+                Spacer(modifier = modifier.height(48.dp))
+            }
+
         }
     }
 }
 
 @Composable
-fun CityItem(city: City, modifier: Modifier = Modifier) {
-    Row(
+fun CityItem(city: City, prefUiState: PreferencesState, modifier: Modifier = Modifier) {
+    val temp: String
+    val tempSign: String
+    if (prefUiState.isCelsius) {
+        temp = city.currentTempC.toString()
+        tempSign = "°C"
+    } else {
+        temp = city.currentTempF.toString()
+        tempSign = "°F"
+    }
+//    Row(
+//        modifier = modifier
+//            .padding(16.dp)
+//            .fillMaxWidth(),
+//        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        val timestamp = city.currentTimestamp
+//        val timeZoneId = city.timeZoneId
+//        val currentTime =
+//            TimeFormatter.getShort24HourFormattedTime(timestamp, timeZoneId ?: "Etc/UTC")
+//
+//        Text(text = currentTime ?: "--:--", style = MaterialTheme.typography.bodyLarge)
+//        Column(
+//            verticalArrangement = Arrangement.Center,
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            Text(text = buildAnnotatedString {
+//                withStyle(
+//                    style = SpanStyle(
+//                        fontSize = 25.sp,
+//                        color = MaterialTheme.colorScheme.primary
+//                    )
+//                ) {
+//                    append(city.name.first().toString())
+//                }
+//                withStyle(style = SpanStyle(fontSize = 18.sp)) {
+//                    append(city.name.substring(1))
+//                }
+//            })
+//            Icon(
+//                modifier = modifier.size(72.dp), painter = painterResource(
+//                    city.condition?.iconRes ?: R.drawable.fog_icon
+//                ), contentDescription = city.condition?.weatherDesc
+//            )
+//        }
+//        Text(text = "$temp$tempSign", style = MaterialTheme.typography.bodyLarge)
+//    }
+
+    Column(
         modifier = modifier
-            .padding(4.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(16.dp)
+            .fillMaxWidth()
     ) {
-        Text(text = city.name)
-        Box {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    modifier = modifier
-                        .padding(4.dp)
-                        .width(24.dp), painter = painterResource(
-                        city.condition?.iconRes ?: R.drawable.sunny_clear_day_icon
-                    ), contentDescription = city.condition?.weatherDesc
-                )
-                Text(text = city.currentTemp.toString())
-            }
-        }
+        Text(text = city.country, fontSize = 12.sp)
+        Text(text = city.name, fontSize = 26.sp, modifier = modifier.padding(start = 16.dp))
+        Text(text = city.region, fontSize = 12.sp)
     }
 }
 
@@ -268,5 +349,68 @@ fun LoadingContent(
         PullToRefreshBox(isRefreshing = loading, onRefresh = { onRefreshCities.invoke() }) {
             content()
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MenuScreenPreview() {
+    val city1 = City(
+        id = 1,
+        name = "Porto",
+        isPin = false,
+        country = "Portugal",
+        region = "Porto",
+        position = 0
+    )
+    city1.currentTempC = 35.toString()
+    city1.currentTempF = 35.toString()
+    city1.condition = WeatherType.fromWNO(1003)
+
+
+    val city2 = City(
+        id = 2,
+        name = "Moskow",
+        isPin = false,
+        country = "Russia",
+        region = "Moskovskaya oblast",
+        position = 0
+    )
+    city2.currentTempC = 21.toString()
+    city2.currentTempF = 21.toString()
+    city2.condition = WeatherType.fromWNO(1000)
+
+
+    val city3 = City(
+        id = 3,
+        name = "Omsk",
+        isPin = false,
+        country = "Russia",
+        region = "Omskaya oblast",
+        position = 0
+    )
+    city3.currentTempC = 23.toString()
+    city3.currentTempF = 35.toString()
+    city3.condition = WeatherType.fromWNO(1087)
+
+
+    val sampleUiState = CitiesUiState.HasCities(
+        isLoading = false,
+        cities = listOf(city1, city2, city3),
+        errorMessages = null
+    )
+    val preUiState = PreferencesState(isCelsius = false)
+    Surface {
+
+        MenuScreen(
+            sampleUiState,
+            onNavigateToCities = { },
+            onRefreshCities = {},
+            onBack = {},
+            onNavigateToSearch = {},
+            onNavigateToSettings = { },
+            onItemClick = {},
+            prefUiState = preUiState,
+        )
     }
 }

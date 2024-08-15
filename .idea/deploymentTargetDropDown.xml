@@ -5,6 +5,9 @@
       <entry key="CitiesItem">
         <State />
       </entry>
+      <entry key="MenuScreenPreview">
+        <State />
+      </entry>
       <entry key="app">
         <State>
           <targetSelectedWithDropDown>
@@ -13,12 +16,12 @@
               <deviceKey>
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\GalinaBuller\.android\avd\Pixel_5_API_28.avd" />
+                  <value value="C:\Users\GalinaBuller\.android\avd\Pixel_7_Pro_API_33.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-07-17T19:51:10.921594300Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-07-30T23:17:42.042668500Z" />
         </State>
       </entry>
     </value>

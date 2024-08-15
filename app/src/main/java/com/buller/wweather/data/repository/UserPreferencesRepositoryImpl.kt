@@ -54,7 +54,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(private val dataStoreRep
         }
     }
 
-    override suspend fun updateThemeType(type: Boolean) {
+    override suspend fun updateTempType(type: Boolean) {
         dataStoreRepository.edit { preferences ->
             preferences[TYPE_TEMPERATURE] = type
         }

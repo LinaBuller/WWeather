@@ -3,7 +3,9 @@ package com.buller.wweather.domain.model
 data class WeatherData(
     val timestamp: Int = 0,
     val timeZoneId: String = "",
-    val location: String,
+    val cityName: String,
+    val region:String? = null,
+    val country :String? = null,
     val time: String,
     val humidity: Int,
     val weatherType: WeatherType,

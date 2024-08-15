@@ -12,7 +12,7 @@ fun HomeRoute(
     homeViewModel: HomeViewModel,
     isExpandedScreen: Boolean,
     openMenu: () -> Unit,
-    modifier: Modifier,
+    modifier: Modifier = Modifier
 ) {
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val prefUiState by homeViewModel.prefUiState.collectAsStateWithLifecycle()
@@ -22,10 +22,10 @@ fun HomeRoute(
         prefUiState = prefUiState,
         isExpandedScreen = isExpandedScreen,
         openMenu = openMenu,
-        modifier = modifier,
         onRefreshWeather = {
             homeViewModel.refreshMainWeather()
         },
+        modifier = modifier
     )
 }
 
@@ -35,12 +35,11 @@ fun HomeRoute(
     uiState: PageState,
     prefUiState: PreferencesState,
     isExpandedScreen: Boolean,
-    modifier: Modifier,
     openMenu: () -> Unit,
     onRefreshWeather: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val homeScreenType = getHomeScreenType(isExpandedScreen)
-
     when (homeScreenType) {
 
         HomeScreenType.Feed -> {
@@ -48,10 +47,8 @@ fun HomeRoute(
                 uiState = uiState,
                 prefUiState = prefUiState,
                 openMenu = openMenu,
+                onRefreshWeather = onRefreshWeather,
                 modifier = modifier,
-                onRefreshWeather = {
-                    onRefreshWeather.invoke()
-                },
             )
         }
 

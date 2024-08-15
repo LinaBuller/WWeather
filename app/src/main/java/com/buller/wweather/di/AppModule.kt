@@ -1,6 +1,7 @@
 package com.buller.wweather.di
 
 import android.app.Application
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.room.Room
@@ -8,9 +9,12 @@ import androidx.room.RoomDatabase
 import com.buller.wweather.data.remote.Constants
 import com.buller.wweather.data.remote.WeatherApi
 import com.buller.wweather.data.repository.RoomRepositoryImpl
+import com.buller.wweather.data.repository.WorkManagerRepositoryImpl
 import com.buller.wweather.data.room.DatabaseConstants
 import com.buller.wweather.data.room.LocalDatabase
+import com.buller.wweather.data.workers.FetchWeatherWorker
 import com.buller.wweather.domain.repository.RoomRepository
+import com.buller.wweather.domain.repository.WorkManagerRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.Module
@@ -58,6 +62,5 @@ object AppModule {
     @Singleton
     fun provideLocalRepository(database: LocalDatabase): RoomRepository =
         RoomRepositoryImpl(database.getDao())
-
 
 }

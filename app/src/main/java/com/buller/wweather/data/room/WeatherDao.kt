@@ -18,4 +18,10 @@ interface WeatherDao {
 
     @Delete
     fun deleteCity(city: City)
+
+    @Delete
+    fun deleteCities(citiesToDelete: List<City>)
+
+    @Query("SELECT * FROM ${DatabaseConstants.CITY_TABLE_NAME} WHERE ${DatabaseConstants.CITY_NAME} = :name LIMIT 1")
+    fun getCityByName(name: String): City?
 }
