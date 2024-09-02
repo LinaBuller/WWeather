@@ -2,36 +2,40 @@ package com.buller.wweather.presentation.menu
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.buller.wweather.presentation.home.HomeViewModel
 
 
 @Composable
 fun MenuRoute(
-    viewModel: HomeViewModel,
-    isExpandedScreen: Boolean,
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToCities: () -> Unit,
 ) {
-    val state = viewModel.citiesUiState.collectAsStateWithLifecycle().value
-    val prefUiState = viewModel.prefUiState.collectAsStateWithLifecycle().value
+    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val state = homeViewModel.citiesUiState.collectAsStateWithLifecycle().value
+    val preferencesState = homeViewModel.prefUiState.collectAsStateWithLifecycle().value
 
     MenuScreen(
-        uiState = state,
         modifier = modifier,
+        uiState = state,
+        prefUiState = preferencesState,
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToSearch = onNavigateToSearch,
-        onBack = onBack,
+        onNavigateToCities = onNavigateToCities,
         onItemClick = {
 
         },
         onRefreshCities = {
-            viewModel.refreshCities()
+            homeViewModel.refreshCities()
         },
-        onNavigateToCities = onNavigateToCities,
-        prefUiState = prefUiState
+        onBack = {
+            homeViewModel.refreshCities()
+            homeViewModel.refreshMainWeather()
+            onBack.invoke()
+        }
     )
 }

@@ -7,10 +7,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.buller.wweather.di.WorkerModule
-import com.buller.wweather.domain.model.City
 import com.buller.wweather.domain.repository.RoomRepository
 import com.buller.wweather.domain.repository.WeatherRepository
-import com.buller.wweather.presentation.home.ExamplePage
+import com.buller.wweather.domain.model.ExamplePage
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.EntryPoints

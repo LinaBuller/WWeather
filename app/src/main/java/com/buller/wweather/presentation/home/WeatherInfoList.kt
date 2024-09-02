@@ -17,9 +17,10 @@ import com.buller.wweather.domain.model.WeatherInfo
 
 @Composable
 fun WeatherInfoList(
+    modifier: Modifier = Modifier,
     weatherInfo: WeatherInfo?,
     prefUiState: PreferencesState,
-    modifier: Modifier = Modifier
+
 ) {
     weatherInfo?.currentWeatherData?.let { data ->
 

@@ -1,6 +1,5 @@
 package com.buller.wweather.presentation.cities
 
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
@@ -18,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
@@ -42,7 +40,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -54,57 +51,39 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.buller.wweather.R
+import com.buller.wweather.domain.model.CitiesUiState
 import com.buller.wweather.domain.model.City
 import com.buller.wweather.presentation.home.FullScreenLoading
-import kotlinx.coroutines.launch
-
 
 @Composable
 fun CitiesScreen(
-    cities: CitiesUiState,
-    isExpandedScreen: Boolean,
+    modifier: Modifier = Modifier,
+    citiesState: CitiesUiState,
     onBack: () -> Unit,
     onRefreshCities: () -> Unit,
     onDeleteCities: (List<City>) -> Unit,
-    modifier: Modifier
 ) {
-
     var isActionModeEnabled by remember { mutableStateOf(false) }
     val selectedItems = remember { mutableStateListOf<City>() }
 
-    CitiesFeed(cities = cities,
+    CitiesFeed(cities = citiesState,
         modifier = modifier,
         navigationIconContent = {
-            IconButton(onClick = {
-                if (isActionModeEnabled) {
-                    isActionModeEnabled = false
+            NavigationIconContent(
+                isActionModeEnabled = isActionModeEnabled,
+                onBack = onBack,
+                onChangeActionMode = { newIsActionModeEnabled ->
+                    isActionModeEnabled = newIsActionModeEnabled
                     selectedItems.clear()
-                } else {
-                    onBack()
-                }
-            }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.cd_navigate_up),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-
+                })
         },
         isActionModeEnabled = isActionModeEnabled,
-        showTopAppBar = !isExpandedScreen,
         onRefreshCities = onRefreshCities,
-        onCloseActionMode = { isEnabled ->
-            isActionModeEnabled = isEnabled
-            if (isEnabled) {
-                selectedItems.clear()
-            }
-        },
         selectedItems = selectedItems,
         onDeleteCities = {
             onDeleteCities(selectedItems)
         },
-        hasExistCities = { hasCitiesUiState, contentPadding, contentModifier, lazyListState ->
+        listContent = { hasCitiesUiState, contentPadding, contentModifier, lazyListState ->
             CitiesList(
                 contentPadding = contentPadding,
                 cities = hasCitiesUiState,
@@ -117,34 +96,58 @@ fun CitiesScreen(
                 }
             )
         })
-
-
 }
+//  onCloseActionMode = { isEnabled ->
+//            isActionModeEnabled = isEnabled
+//            if (isEnabled) {
+//                selectedItems.clear()
+//            }
+//        },
+
+@Composable
+fun NavigationIconContent(
+    isActionModeEnabled: Boolean,
+    onChangeActionMode: (Boolean) -> Unit,
+    onBack: () -> Unit,
+) {
+    IconButton(onClick = {
+        if (isActionModeEnabled) {
+            onChangeActionMode.invoke(false)
+        } else {
+            onBack()
+        }
+    }) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = stringResource(R.string.cd_navigate_up),
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CitiesFeed(
-    cities: CitiesUiState,
-    showTopAppBar: Boolean,
-    onRefreshCities: () -> Unit,
-    navigationIconContent: @Composable () -> Unit = { },
     modifier: Modifier = Modifier,
+    cities: CitiesUiState,
     isActionModeEnabled: Boolean,
-    onCloseActionMode: (Boolean) -> Unit,
     selectedItems: SnapshotStateList<City>,
     onDeleteCities: () -> Unit,
-    hasExistCities: @Composable (
+    onRefreshCities: () -> Unit,
+    navigationIconContent: @Composable () -> Unit,
+    listContent: @Composable (
         state: CitiesUiState.HasCities,
         contentPadding: PaddingValues,
         modifier: Modifier,
         lazyListState: LazyListState
     ) -> Unit
+
 ) {
     val topAppBarState = rememberTopAppBarState()
     val lazyListState = rememberLazyListState()
 
     Scaffold(topBar = {
-        if (showTopAppBar) {
             CitiesTopAppBar(
                 navigationIconContent = navigationIconContent,
                 topAppBarState = topAppBarState,
@@ -153,7 +156,6 @@ fun CitiesFeed(
                 onDeleteSelected = onDeleteCities,
                 modifier = modifier
             )
-        }
     }, modifier = modifier) { innerPadding ->
         LoadingCities(empty = when (cities) {
             is CitiesUiState.HasCities -> false
@@ -164,7 +166,7 @@ fun CitiesFeed(
             onRefreshCities = onRefreshCities,
             content = {
                 when (cities) {
-                    is CitiesUiState.HasCities -> hasExistCities(
+                    is CitiesUiState.HasCities -> listContent(
                         cities,
                         innerPadding,
                         modifier, lazyListState
@@ -191,9 +193,9 @@ fun CitiesFeed(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CitiesList(
+    modifier: Modifier = Modifier,
     cities: CitiesUiState.HasCities,
     contentPadding: PaddingValues,
-    modifier: Modifier,
     lazyListState: LazyListState,
     isActionModeEnabled: Boolean,
     selectedItems: SnapshotStateList<City>,
@@ -234,10 +236,10 @@ fun CitiesList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoadingCities(
-    empty: Boolean,
-    emptyCities: @Composable () -> Unit,
     loading: Boolean,
+    empty: Boolean,
     onRefreshCities: () -> Unit,
+    emptyCities: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
     if (empty) {
@@ -252,7 +254,6 @@ fun LoadingCities(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CitiesTopAppBar(
-    navigationIconContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     topAppBarState: TopAppBarState = rememberTopAppBarState(),
     scrollBehavior: TopAppBarScrollBehavior? = TopAppBarDefaults.enterAlwaysScrollBehavior(
@@ -260,7 +261,8 @@ fun CitiesTopAppBar(
     ),
     isActionModeEnabled: Boolean,
     selectedItems: SnapshotStateList<City>,
-    onDeleteSelected: () -> Unit
+    onDeleteSelected: () -> Unit,
+    navigationIconContent: @Composable () -> Unit,
 ) {
     if (isActionModeEnabled) {
         CenterAlignedTopAppBar(
@@ -287,7 +289,11 @@ fun CitiesTopAppBar(
 
 
 @Composable
-fun CitiesItem(city: City, isSelected: Boolean, modifier: Modifier = Modifier) {
+fun CitiesItem(
+    modifier: Modifier = Modifier,
+    city: City,
+    isSelected: Boolean
+) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -335,10 +341,8 @@ fun CitiesScreenPreview() {
     val cityState =
         CitiesUiState.HasCities(cities = cities, isLoading = false, errorMessages = null)
 
-
     CitiesScreen(modifier = Modifier,
-        cities = cityState,
-        isExpandedScreen = false,
+        citiesState = cityState,
         onRefreshCities = {},
         onDeleteCities = {},
         onBack = {})

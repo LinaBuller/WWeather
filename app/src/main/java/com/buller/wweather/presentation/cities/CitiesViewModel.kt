@@ -2,6 +2,7 @@ package com.buller.wweather.presentation.cities
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.buller.wweather.domain.model.CitiesState
 import com.buller.wweather.domain.model.City
 import com.buller.wweather.domain.repository.RoomRepository
 import com.buller.wweather.domain.util.Result
@@ -13,7 +14,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
 
 @HiltViewModel

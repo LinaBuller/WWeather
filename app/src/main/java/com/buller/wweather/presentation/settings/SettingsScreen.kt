@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,7 +33,6 @@ import com.buller.wweather.domain.model.PreferencesState
 
 @Composable
 fun SettingsScreen(
-    onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     state: PreferencesState,
     onTempCheckedChange: (Boolean) -> Unit,
@@ -40,10 +41,11 @@ fun SettingsScreen(
     onPressureCheckedChange: (Boolean) -> Unit,
     onThemeCheckedChange: (Boolean) -> Unit,
     onAutoUpdateCheckedChange: (Boolean) -> Unit,
+    onBack: () -> Unit
 ) {
     SettingsFeed(
         state = state,
-        onNavigateUp = onNavigateUp,
+        onBack = onBack,
         modifier = modifier,
         onAutoUpdateCheckedChange = onAutoUpdateCheckedChange,
         onPrecipCheckedChange = onPrecipCheckedChange,
@@ -58,7 +60,7 @@ fun SettingsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsFeed(
-    onNavigateUp: () -> Unit,
+    modifier: Modifier = Modifier,
     state: PreferencesState,
     onTempCheckedChange: (Boolean) -> Unit,
     onWindCheckedChange: (Boolean) -> Unit,
@@ -66,111 +68,96 @@ fun SettingsFeed(
     onPressureCheckedChange: (Boolean) -> Unit,
     onThemeCheckedChange: (Boolean) -> Unit,
     onAutoUpdateCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    onBack: () -> Unit
 ) {
-    Scaffold(topBar = { SettingsTopAppBar(onNavigateUp = onNavigateUp) })
+
+    val allPreferenceItems = listOf(
+        PreferenceDesc.TemperatureItem,
+        PreferenceDesc.WindItem,
+        PreferenceDesc.PressureItem,
+        PreferenceDesc.PrecipItem,
+        PreferenceDesc.ThemeItem,
+        PreferenceDesc.AutoUpdateItem
+    )
+
+    Scaffold(
+        topBar = {
+            SettingsTopAppBar(onBack = onBack)
+        })
     { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(paddingValues)
         ) {
-            Box(modifier = modifier.padding(start = 18.dp)) {
-                Column {
-                    Text(text = "Your", fontSize = 35.sp)
-                    Text(text = "Settings", fontSize = 50.sp)
+            item {
+                Box(modifier = modifier.padding(start = 36.dp)) {
+                    Column {
+                        Text(text = "Your", fontSize = 35.sp)
+                        Text(text = "Settings", fontSize = 50.sp)
+                    }
                 }
+                Spacer(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(32.dp)
+                )
             }
-
-            Spacer(modifier = modifier.fillMaxWidth().padding(16.dp))
-
-            val temperature = PreferenceDesc.TemperatureItem
-            CustomSwitchPreference(
-                modifier = modifier,
-                title = temperature.title,
-                option2 = temperature.option2,
-                option1 = temperature.option1,
-                description = temperature.description,
-                state = state.isCelsius,
-                onClick = onTempCheckedChange,
-                icon = {}
-            )
-
-            val wind = PreferenceDesc.WindItem
-            CustomSwitchPreference(
-                modifier = modifier,
-                title = wind.title,
-                option2 = wind.option2,
-                option1 = wind.option1,
-                description = wind.description,
-                state = state.isMetricWindType,
-                onClick = onWindCheckedChange,
-                icon = {}
-            )
-
-            val precip = PreferenceDesc.PrecipItem
-
-            CustomSwitchPreference(
-                modifier = modifier,
-                title = precip.title,
-                option2 = precip.option2,
-                option1 = precip.option1,
-                description = precip.description,
-                state = state.isMetricPrecipType,
-                onClick = onPrecipCheckedChange,
-                icon = {}
-            )
-
-            val pressure = PreferenceDesc.PressureItem
-            CustomSwitchPreference(
-                modifier = modifier,
-                title = pressure.title,
-                option2 = pressure.option2,
-                option1 = pressure.option1,
-                description = pressure.description,
-                state = state.isMetricPressureType,
-                onClick = onPressureCheckedChange,
-                icon = {}
-            )
-            Spacer(modifier = modifier.padding(16.dp))
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.primary,
-                thickness = 1.dp,
-                modifier = modifier.padding(start = 16.dp, end = 16.dp)
-            )
-            Spacer(modifier = modifier.padding(8.dp))
-            val theme = PreferenceDesc.ThemeItem
-            CustomSwitchPreference(
-                modifier = modifier,
-                title = theme.title,
-                option2 = theme.option2,
-                option1 = theme.option1,
-                description = theme.description,
-                state = state.isTheme,
-                onClick = onThemeCheckedChange,
-                icon = {}
-            )
-            Spacer(modifier = modifier.padding(8.dp))
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.primary,
-                thickness = 1.dp,
-                modifier = modifier.padding(start = 16.dp, end = 16.dp)
-            )
-            Spacer(modifier = modifier.padding(16.dp))
-            val autoUpdate = PreferenceDesc.AutoUpdateItem
-            CustomSwitchPreference(
-                modifier = modifier,
-                title = autoUpdate.title,
-                option2 = autoUpdate.option2,
-                option1 = autoUpdate.option1,
-                description = autoUpdate.description,
-                state = state.isAutoUpdate,
-                onClick = onAutoUpdateCheckedChange,
-                icon = {}
-            )
+            items(allPreferenceItems) { preference ->
+                SettingItem(
+                    setting = preference,
+                    state = state,
+                    onClick = { setting, isChecked ->
+                        when (setting) {
+                            PreferenceDesc.TemperatureItem -> onTempCheckedChange(isChecked)
+                            PreferenceDesc.WindItem -> onWindCheckedChange(isChecked)
+                            PreferenceDesc.AutoUpdateItem -> onAutoUpdateCheckedChange(isChecked)
+                            PreferenceDesc.PrecipItem -> onPrecipCheckedChange(isChecked)
+                            PreferenceDesc.PressureItem -> onPressureCheckedChange(isChecked)
+                            PreferenceDesc.ThemeItem -> onThemeCheckedChange(isChecked)
+                        }
+                    })
+            }
         }
     }
 }
+
+@Composable
+fun SettingItem(
+    modifier: Modifier = Modifier,
+    setting: PreferenceDesc,
+    state: PreferencesState,
+    onClick: (PreferenceDesc, Boolean) -> Unit
+) {
+    val isChecked = when (setting) {
+        PreferenceDesc.TemperatureItem -> state.isCelsius
+        PreferenceDesc.WindItem -> state.isMetricWindType
+        PreferenceDesc.PrecipItem -> state.isMetricPrecipType
+        PreferenceDesc.PressureItem -> state.isMetricPressureType
+        PreferenceDesc.ThemeItem -> state.isTheme
+        PreferenceDesc.AutoUpdateItem -> state.isAutoUpdate
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(end = 16.dp)
+    ) {
+        CustomSwitchPreference(
+            modifier = modifier.fillMaxWidth(),
+            title = setting.title,
+            rightOption = setting.option2,
+            leftOption = setting.option1,
+            description = setting.description,
+            state = isChecked,
+            onClick = { checked ->
+                onClick(setting, checked)
+            },
+            icon = {}
+        )
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -180,14 +167,14 @@ fun SettingsTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = TopAppBarDefaults.enterAlwaysScrollBehavior(
         topAppBarState
     ),
-    onNavigateUp: () -> Unit
+    onBack: () -> Unit,
 ) {
     TopAppBar(
         title = {},
         actions = {},
         navigationIcon = {
             IconButton(
-                onClick = onNavigateUp,
+                onClick = onBack,
                 content = {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,

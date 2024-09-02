@@ -8,14 +8,7 @@ import com.buller.wweather.presentation.home.HomeViewModel
 
 @Composable
 fun MainScreen(
-    widthSizeClass: WindowWidthSizeClass,
-    modifier: Modifier = Modifier
 ) {
-    val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
-
-    NavGraph(
-        isExpandedScreen = isExpandedScreen,
-        modifier = modifier
-    )
+    NavGraph()
 }
 

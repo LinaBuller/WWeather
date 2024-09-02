@@ -1,6 +1,4 @@
-package com.buller.wweather.presentation.home
-
-import com.buller.wweather.domain.model.WeatherInfo
+package com.buller.wweather.domain.model
 
 
 sealed interface HomeUiState {

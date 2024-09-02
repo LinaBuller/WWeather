@@ -1,4 +1,4 @@
-package com.buller.wweather.presentation.home
+package com.buller.wweather.domain.model
 
 
 sealed interface PageState {

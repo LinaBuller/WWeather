@@ -58,13 +58,20 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import co.yml.charts.common.extensions.isNotNull
 import com.buller.wweather.R
+import com.buller.wweather.domain.model.AstronomyInfo
 import com.buller.wweather.domain.model.City
+import com.buller.wweather.domain.model.ExamplePage
+import com.buller.wweather.domain.model.PageState
 import com.buller.wweather.domain.model.PreferencesState
+import com.buller.wweather.domain.model.WeatherData
+import com.buller.wweather.domain.model.WeatherInfo
+import com.buller.wweather.domain.model.WeatherType
 import kotlinx.coroutines.launch
 
 //@TODO Определять направление ветра: ЮЗ, СВ и тд
@@ -72,15 +79,15 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     uiState: PageState,
     prefUiState: PreferencesState,
-    modifier: Modifier = Modifier,
     onRefreshWeather: () -> Unit,
     openMenu: () -> Unit,
 ) {
-    WeatherFeed(uiState,
+    WeatherFeed(
         modifier = Modifier,
+        uiState = uiState,
         openMenu = openMenu,
         onRefreshWeather = onRefreshWeather,
-        hasWeatherInfo = { hasInfoUiState, contentPadding, contentModifier ->
+        weatherContent = { hasInfoUiState, contentPadding, contentModifier ->
 
             val cities = hasInfoUiState.pagerList.map { it.city }
             val pagerState = rememberPagerState(pageCount = { cities.size }, initialPage = 0)
@@ -100,11 +107,11 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherFeed(
+    modifier: Modifier = Modifier,
     uiState: PageState,
     onRefreshWeather: () -> Unit,
     openMenu: () -> Unit,
-    modifier: Modifier = Modifier,
-    hasWeatherInfo: @Composable (
+    weatherContent: @Composable (
         uiState: PageState.HasInfo, contentPadding: PaddingValues, modifier: Modifier
     ) -> Unit
 ) {
@@ -125,14 +132,14 @@ fun WeatherFeed(
             is PageState.HasInfo -> false
             is PageState.NoInfo -> uiState.isLoading
         },
+            modifier = modifier,
             emptyContent = { FullScreenLoading() },
             loading = uiState.isLoading,
             onRefreshWeather = onRefreshWeather,
-            modifier = modifier,
             content = {
                 when (uiState) {
                     is PageState.HasInfo -> {
-                        hasWeatherInfo(uiState, innerPadding, modifier)
+                        weatherContent(uiState, innerPadding, modifier)
                     }
 
                     is PageState.NoInfo -> {
@@ -153,11 +160,11 @@ fun WeatherFeed(
 
 @Composable
 fun Pager(
+    modifier: Modifier = Modifier,
     pagerState: PagerState,
     pagerList: List<ExamplePage>,
     cities: List<City>,
     prefUiState: PreferencesState,
-    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     onRefreshWeather: () -> Unit,
 ) {
@@ -188,7 +195,7 @@ fun Pager(
             state = pagerState, modifier = Modifier.weight(1f)
         ) { currentPage ->
             WeatherList(
-                pagerList[currentPage],
+                page = pagerList[currentPage],
                 prefUiState = prefUiState,
                 modifier = modifier,
                 onRefreshWeather = onRefreshWeather
@@ -199,9 +206,9 @@ fun Pager(
 
 @Composable
 fun WeatherList(
+    modifier: Modifier = Modifier,
     page: ExamplePage,
     prefUiState: PreferencesState,
-    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     onRefreshWeather: () -> Unit
 ) {
@@ -264,10 +271,10 @@ fun WeatherList(
 
 @Composable
 fun CustomTabRowWithPartialVisibility(
-    pagerState: PagerState,
-    onTabSelected: (Int) -> Unit,
-    tabs: List<City>,
     modifier: Modifier = Modifier,
+    pagerState: PagerState,
+    tabs: List<City>,
+    onTabSelected: (Int) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -354,12 +361,12 @@ fun CustomIndicatorRowPager(pagerState: PagerState, pageCount: Int) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoadingContent(
+    modifier: Modifier = Modifier,
     empty: Boolean,
-    emptyContent: @Composable () -> Unit,
     loading: Boolean,
     onRefreshWeather: () -> Unit,
     content: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
+    emptyContent: @Composable () -> Unit
 ) {
     if (empty) {
         emptyContent()
@@ -388,8 +395,8 @@ fun FullScreenLoading() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopAppBar(
-    openMenu: () -> Unit,
     modifier: Modifier = Modifier,
+    openMenu: () -> Unit,
     topAppBarState: TopAppBarState = rememberTopAppBarState(),
     scrollBehavior: TopAppBarScrollBehavior? = TopAppBarDefaults.enterAlwaysScrollBehavior(
         topAppBarState
@@ -419,9 +426,9 @@ fun HomeTopAppBar(
 
 @Composable
 fun AppBarRow(
-    openMenu: () -> Unit,
     modifier: Modifier = Modifier,
-    onRefreshWeather: () -> Unit,
+    openMenu: () -> Unit,
+    onRefreshWeather: () -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -443,4 +450,3 @@ fun AppBarRow(
         }
     }
 }
-

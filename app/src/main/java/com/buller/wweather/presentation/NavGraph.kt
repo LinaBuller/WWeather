@@ -1,10 +1,12 @@
 package com.buller.wweather.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,39 +23,27 @@ import com.buller.wweather.presentation.settings.SettingsViewModel
 
 @Composable
 fun NavGraph(
-    isExpandedScreen: Boolean,
     startDestination: String = NavigationItem.Home.route,
-    modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
-    val viewModel = hiltViewModel<HomeViewModel>()
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val homeViewModel = hiltViewModel<HomeViewModel>()
 
     NavHost(
         navController = navController,
         startDestination = startDestination,
     ) {
         composable(route = NavigationItem.Home.route) {
-            HomeRoute(
-                homeViewModel = viewModel,
-                isExpandedScreen = isExpandedScreen,
+            HomeRoute(homeViewModel = homeViewModel,
                 openMenu = {
                     navController.navigate(
                         route = NavigationItem.Menu.route
                     )
-                },
-                modifier = modifier
+                }
             )
         }
+
         composable(route = NavigationItem.Menu.route) {
             MenuRoute(
-                viewModel = viewModel,
-                isExpandedScreen = isExpandedScreen,
-                onBack = {
-                    viewModel.refreshCities()
-                    viewModel.refreshMainWeather()
-                    navController.popBackStack()
-                },
                 onNavigateToSettings = {
                     navController.navigate(
                         route = NavigationItem.Settings.route
@@ -65,16 +55,18 @@ fun NavGraph(
                     )
                 },
                 onNavigateToSearch = {
-
                     navController.navigate(
                         route = NavigationItem.Search.route
                     )
-                })
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
         }
+
         composable(route = NavigationItem.Search.route) {
             SearchRoute(
-                viewModel = hiltViewModel<SearchViewModel>(),
-                isExpandedScreen = isExpandedScreen,
                 onBack = {
                     navController.popBackStack()
                 }
@@ -83,7 +75,6 @@ fun NavGraph(
 
         composable(route = NavigationItem.Settings.route) {
             SettingsRoute(
-                viewModel = hiltViewModel<SettingsViewModel>(),
                 onBack = {
                     navController.popBackStack()
                 }
@@ -91,8 +82,6 @@ fun NavGraph(
         }
         composable(route = NavigationItem.Cities.route) {
             CitiesRoute(
-                viewModel = hiltViewModel<CitiesViewModel>(),
-                isExpandedScreen = isExpandedScreen,
                 onBack = {
                     navController.popBackStack()
                 }

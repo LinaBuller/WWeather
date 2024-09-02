@@ -1,4 +1,4 @@
-package com.buller.wweather.presentation.search
+package com.buller.wweather.domain.model
 
 import com.buller.wweather.domain.model.City
 

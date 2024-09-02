@@ -8,8 +8,8 @@ import com.buller.wweather.presentation.settings.components.SettingsSwitch
 fun CustomSwitchPreference(
     modifier: Modifier = Modifier,
     title: String,
-    option1: String,
-    option2: String,
+    leftOption: String,
+    rightOption: String,
     description: String? = null,
     state: Boolean,
     onClick: (Boolean) -> Unit,
@@ -20,8 +20,8 @@ fun CustomSwitchPreference(
         modifier = modifier,
         icon = icon,
         description = description,
-        option1 = option1,
-        option2 = option2,
+        leftOption = leftOption,
+        rightOption = rightOption,
         checked = state,
         onCheckedChange = onClick)
 }
@@ -32,8 +32,8 @@ fun CustomSwitchPreference(
     description: String? = null,
     icon: @Composable (() -> Unit)?,
     checked: Boolean,
-    option1: String,
-    option2: String,
+    leftOption: String,
+    rightOption: String,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -48,8 +48,8 @@ fun CustomSwitchPreference(
     ) {
         SettingsSwitch(
             checked = checked,
-            option1 = option1,
-            option2 = option2,
+            leftOption = leftOption,
+            rightOption = rightOption,
             onOptionSelected = onCheckedChange
         )
     }

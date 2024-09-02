@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Settings
@@ -37,12 +35,9 @@ import androidx.compose.material3.TopAppBarState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,31 +47,31 @@ import com.buller.wweather.R
 import com.buller.wweather.domain.model.City
 import com.buller.wweather.domain.model.PreferencesState
 import com.buller.wweather.domain.model.WeatherType
-import com.buller.wweather.presentation.cities.CitiesUiState
+import com.buller.wweather.domain.model.CitiesUiState
 import com.buller.wweather.presentation.home.FullScreenLoading
 
 @Composable
 fun MenuScreen(
+    modifier: Modifier = Modifier,
     uiState: CitiesUiState,
     prefUiState: PreferencesState,
-    modifier: Modifier = Modifier,
     onItemClick: (City) -> Unit,
     onRefreshCities: () -> Unit,
     onNavigateToCities: () -> Unit,
-    onBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToSearch: () -> Unit,
+    onBack: () -> Unit,
 ) {
 
     MenuFeed(
-        uiState = uiState,
         modifier = modifier,
+        uiState = uiState,
         onRefreshCities = onRefreshCities,
         onBack = onBack,
         onNavigateToSearch = onNavigateToSearch,
         onNavigateToSettings = onNavigateToSettings,
 
-        hasCities = { hasCity, contentPadding, contentModifier ->
+        menuContent = { hasCity, contentPadding, contentModifier ->
             MenuContent(
                 uiState = hasCity,
                 contentPadding = contentPadding,
@@ -90,11 +85,11 @@ fun MenuScreen(
 
 @Composable
 fun MenuContent(
+    modifier: Modifier = Modifier,
     uiState: CitiesUiState.HasCities,
     prefUiState: PreferencesState,
-    onItemClick: (City) -> Unit,
-    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    onItemClick: (City) -> Unit,
     navigateToCities: () -> Unit
 ) {
     val cities = uiState.cities
@@ -115,13 +110,13 @@ fun MenuContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuFeed(
-    uiState: CitiesUiState,
     modifier: Modifier,
+    uiState: CitiesUiState,
     onBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToSearch: () -> Unit,
     onRefreshCities: () -> Unit,
-    hasCities: @Composable (
+    menuContent: @Composable (
         uiState: CitiesUiState.HasCities, contentPadding: PaddingValues, modifier: Modifier
     ) -> Unit
 ) {
@@ -146,7 +141,7 @@ fun MenuFeed(
             content = {
                 when (uiState) {
                     is CitiesUiState.HasCities -> {
-                        hasCities(uiState, innerPadding, modifier)
+                        menuContent(uiState, innerPadding, modifier)
                     }
 
                     is CitiesUiState.NoCities -> {
@@ -169,15 +164,14 @@ fun MenuFeed(
 
 @Composable
 fun CityList(
+    modifier: Modifier = Modifier,
     cities: List<City>,
     prefUiState: PreferencesState,
-    modifier: Modifier = Modifier,
     onItemClick: (City) -> Unit,
     navigateToCities: () -> Unit
 ) {
     LazyColumn {
         items(cities) { city ->
-
             CityItem(
                 city = city,
                 modifier = modifier.clickable {
@@ -213,13 +207,16 @@ fun CityList(
                 }
                 Spacer(modifier = modifier.height(48.dp))
             }
-
         }
     }
 }
 
 @Composable
-fun CityItem(city: City, prefUiState: PreferencesState, modifier: Modifier = Modifier) {
+fun CityItem(
+    modifier: Modifier = Modifier,
+    city: City,
+    prefUiState: PreferencesState
+) {
     val temp: String
     val tempSign: String
     if (prefUiState.isCelsius) {
@@ -282,14 +279,14 @@ fun CityItem(city: City, prefUiState: PreferencesState, modifier: Modifier = Mod
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuTopAppBar(
-    onBack: () -> Unit,
-    onNavigateToSettings: () -> Unit,
-    onNavigateToSearch: () -> Unit,
     modifier: Modifier = Modifier,
     topAppBarState: TopAppBarState = rememberTopAppBarState(),
     scrollBehavior: TopAppBarScrollBehavior? = TopAppBarDefaults.enterAlwaysScrollBehavior(
         topAppBarState
     ),
+    onBack: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+    onNavigateToSearch: () -> Unit,
 ) {
     TopAppBar(title = {}, actions = {
         MenuAppBarRow(
@@ -338,9 +335,9 @@ fun MenuAppBarRow(
 @Composable
 fun LoadingContent(
     empty: Boolean,
-    emptyContent: @Composable () -> Unit,
     loading: Boolean,
     onRefreshCities: () -> Unit,
+    emptyContent: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
     if (empty) {
@@ -403,7 +400,7 @@ fun MenuScreenPreview() {
     Surface {
 
         MenuScreen(
-            sampleUiState,
+            uiState = sampleUiState,
             onNavigateToCities = { },
             onRefreshCities = {},
             onBack = {},

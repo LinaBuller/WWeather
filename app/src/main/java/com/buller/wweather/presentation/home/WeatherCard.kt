@@ -30,7 +30,9 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun WeatherCard(
-    weatherInfo: WeatherInfo?, prefUiState: PreferencesState, modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    weatherInfo: WeatherInfo?,
+    prefUiState: PreferencesState
 ) {
     weatherInfo?.currentWeatherData?.let { data ->
         val iconRes = data.weatherType.iconRes
@@ -62,7 +64,6 @@ fun WeatherCard(
             maxTemp = data.maxTempF
             feelslike = data.feelslikeF
         }
-
 
         Column(
             modifier = modifier

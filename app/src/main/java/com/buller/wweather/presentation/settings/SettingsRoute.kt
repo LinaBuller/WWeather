@@ -6,33 +6,39 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.buller.wweather.domain.model.PreferencesState
 
 
 @Composable
-fun SettingsRoute(viewModel: SettingsViewModel, onBack: () -> Unit, modifier: Modifier = Modifier) {
-
-    val uiState by viewModel.prefUiState.collectAsState()
+fun SettingsRoute(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit
+) {
+    val settingsViewModel = hiltViewModel<SettingsViewModel>()
+    val state by settingsViewModel.prefUiState.collectAsStateWithLifecycle()
 
     SettingsScreen(
-        state = uiState,
-        onNavigateUp = onBack,
         modifier = modifier.fillMaxWidth(),
+        state = state,
+        onBack = onBack,
         onWindCheckedChange = { isType ->
-            viewModel.updateWindType(isType)
+            settingsViewModel.updateWindType(isType)
         },
         onTempCheckedChange = { isType ->
-            viewModel.updateTempType(isType)
+            settingsViewModel.updateTempType(isType)
         },
         onThemeCheckedChange = { isDark ->
-            viewModel.updatePreferTheme(isDark)
+            settingsViewModel.updatePreferTheme(isDark)
         },
         onPressureCheckedChange = { isType ->
-            viewModel.updatePressureType(isType)
+            settingsViewModel.updatePressureType(isType)
         },
         onPrecipCheckedChange = { isType ->
-            viewModel.updatePrecipType(isType)
+            settingsViewModel.updatePrecipType(isType)
         },
         onAutoUpdateCheckedChange = { isAutoUpdate ->
-            viewModel.updateIsAutoUpdate(isAutoUpdate)
+            settingsViewModel.updateIsAutoUpdate(isAutoUpdate)
         })
 }

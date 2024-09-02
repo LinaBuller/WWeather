@@ -38,8 +38,10 @@ import java.util.Locale.*
 
 
 @Composable
-fun AstronomyCard(weatherInfo: WeatherInfo?, modifier: Modifier = Modifier) {
-
+fun AstronomyCard(
+    modifier: Modifier = Modifier,
+    weatherInfo: WeatherInfo? = null
+) {
     fun convertTo24HourFormat(time12Hour: String): String {
         val inputFormat = SimpleDateFormat("hh:mm aa", US)
         val outputFormat = SimpleDateFormat("HH:mm", getDefault())

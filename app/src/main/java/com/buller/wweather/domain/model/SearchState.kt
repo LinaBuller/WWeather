@@ -1,6 +1,4 @@
-package com.buller.wweather.presentation.search
-
-import com.buller.wweather.domain.model.LocationInfo
+package com.buller.wweather.domain.model
 
 
 sealed interface LocationState {
@@ -27,6 +25,10 @@ data class SearchState(
     fun toUiState(): LocationState = if (locationList == null) {
         LocationState.SearchNoInfo(isLoading = isLoading, errorMessages = error)
     }else{
-        LocationState.SearchHasInfo(locationList = locationList,isLoading = isLoading,errorMessages = error)
+        LocationState.SearchHasInfo(
+            locationList = locationList,
+            isLoading = isLoading,
+            errorMessages = error
+        )
     }
 }

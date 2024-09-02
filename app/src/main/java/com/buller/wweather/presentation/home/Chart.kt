@@ -45,7 +45,11 @@ import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 @Composable
-fun Chart(weatherInfo: WeatherInfo?, prefUiState: PreferencesState, modifier: Modifier = Modifier) {
+fun Chart(
+    modifier: Modifier = Modifier,
+    weatherInfo: WeatherInfo?,
+    prefUiState: PreferencesState
+) {
     weatherInfo?.weatherDatePerHour?.let { data ->
         val weatherData = getPoints(data, prefUiState)
         val modelProducer = remember { CartesianChartModelProducer.build() }
@@ -64,8 +68,8 @@ fun Chart(weatherInfo: WeatherInfo?, prefUiState: PreferencesState, modifier: Mo
 
 @Composable
 fun ComposeChart(
-    modelProducer: CartesianChartModelProducer,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    modelProducer: CartesianChartModelProducer
 ) {
     val marker = rememberMarker()
 

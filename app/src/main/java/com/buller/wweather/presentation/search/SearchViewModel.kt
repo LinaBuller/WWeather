@@ -8,7 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.buller.wweather.domain.repository.RoomRepository
 import com.buller.wweather.domain.util.Result
 import com.buller.wweather.domain.model.City
+import com.buller.wweather.domain.model.CityState
 import com.buller.wweather.domain.model.LocationInfo
+import com.buller.wweather.domain.model.LocationState
+import com.buller.wweather.domain.model.SearchState
 import com.buller.wweather.domain.repository.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

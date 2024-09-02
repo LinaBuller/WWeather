@@ -26,8 +26,8 @@ import com.buller.wweather.domain.model.WeatherInfo
 
 @Composable
 fun ForecastList(
-    weatherInfo: WeatherInfo?,
     modifier: Modifier = Modifier,
+    weatherInfo: WeatherInfo?,
     prefUiState: PreferencesState
 ) {
     weatherInfo?.weatherDatePerDay.let { data ->
@@ -47,7 +47,12 @@ fun ForecastList(
 }
 
 @Composable
-fun ForecastItem(data: WeatherData, prefUiState: PreferencesState, modifier: Modifier = Modifier) {
+fun ForecastItem(
+    modifier: Modifier = Modifier,
+    data: WeatherData,
+    prefUiState: PreferencesState,
+
+) {
     val humidity = data.humidity
     val date = data.time
     val iconWeather = data.weatherType.iconRes

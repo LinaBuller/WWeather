@@ -1,11 +1,11 @@
 package com.buller.wweather.presentation
 
-enum class Screen {
-    HOME,
-    SEARCH,
-    SETTINGS,
-    CITIES,
-    MENU
+enum class Screen(val route: String) {
+    HOME("home"),
+    SEARCH("search"),
+    SETTINGS("settings"),
+    CITIES("cities"),
+    MENU("menu")
 }
 
 sealed class NavigationItem(val route: String) {

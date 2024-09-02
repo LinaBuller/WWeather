@@ -38,8 +38,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsSwitch(
     checked: Boolean,
-    option1: String,
-    option2: String,
+    leftOption: String,
+    rightOption: String,
     modifier: Modifier = Modifier,
     onOptionSelected: (Boolean) -> Unit
 ) {
@@ -126,7 +126,7 @@ fun SettingsSwitch(
             contentAlignment = if (isSelected) Alignment.CenterEnd else Alignment.CenterStart
         ) {
             Text(
-                text = if (isSelected) option2 else option1,
+                text = if (isSelected) rightOption else leftOption,
                 color = textColor,
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
@@ -141,7 +141,7 @@ fun SettingsSwitch(
 fun SettingsSwitchPreview() = Surface {
     SettingsSwitch(
         checked = false,
-        option1 = "black",
-        option2 = "white",
+        leftOption = "black",
+        rightOption = "white",
         onOptionSelected = {})
 }

@@ -3,32 +3,31 @@ package com.buller.wweather.presentation.search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 
 @Composable
 fun SearchRoute(
-    viewModel: SearchViewModel,
-    isExpandedScreen: Boolean,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit
 ) {
-    val searchUi by viewModel.searchUiState.collectAsStateWithLifecycle()
-    SearchScreen(
+    val searchViewModel  = hiltViewModel<SearchViewModel>()
+    val state by searchViewModel.searchUiState.collectAsStateWithLifecycle()
 
-        locationState = searchUi,
-        isExpandedScreen = isExpandedScreen,
+    SearchScreen(
+        modifier = modifier,
+        locationState = state,
         onBack = onBack,
         onSaveCity = { city ->
-            viewModel.setCityToLocalDatabase(city)
+            searchViewModel.setCityToLocalDatabase(city)
             onBack.invoke()
         },
         onRefreshSearchRequest = {
-            viewModel.refreshSearchRequest()
+            searchViewModel.refreshSearchRequest()
         },
         onSearchTextChanged = { text ->
-            viewModel.emitSearchText(text)
-        },
-        modifier = modifier,
+            searchViewModel.emitSearchText(text)
+        }
     )
 }

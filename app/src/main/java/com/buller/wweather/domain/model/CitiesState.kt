@@ -1,6 +1,4 @@
-package com.buller.wweather.presentation.cities
-
-import com.buller.wweather.domain.model.City
+package com.buller.wweather.domain.model
 
 sealed interface CitiesUiState {
     val isLoading: Boolean
